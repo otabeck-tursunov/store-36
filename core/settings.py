@@ -25,6 +25,10 @@ SECRET_KEY = 'django-insecure-!67t%9_j0bf=-a1x+4-*1$pa-+qt@n_&sf8(^xmph6wf2s&@=k
 DEBUG = False
 
 ALLOWED_HOSTS = ['*']
+CSRF_TRUSTED_ORIGINS = [
+    'https://omborxona.up.railway.app',
+]
+
 
 # Application definition
 
