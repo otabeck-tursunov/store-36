@@ -1,4 +1,4 @@
-from django.db.models import ExpressionWrapper, F, FloatField
+from django.db.models import ExpressionWrapper, F, FloatField, Q
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views import View
@@ -6,14 +6,20 @@ from django.views import View
 from .models import *
 
 
+def home(request):
+    return redirect('sections')
+
+
 class SectionsView(LoginRequiredMixin, View):
     login_url = 'login'
+
     def get(self, request):
         return render(request, 'sections.html')
 
 
 class ProductsView(LoginRequiredMixin, View):
     login_url = 'login'
+
     def get(self, request):
         products = Product.objects.filter(branch=request.user.branch).annotate(
             total=ExpressionWrapper(
@@ -22,16 +28,17 @@ class ProductsView(LoginRequiredMixin, View):
             )
         ).order_by('-total')
 
-        editedProductID = request.GET.get('editedProductID')
-        if editedProductID:
-            editedProduct = get_object_or_404(Product, pk=int(editedProductID))
-        else:
-            editedProduct = None
+        search = request.GET.get('search')
+        if search:
+            products = products.filter(
+                Q(name__icontains=search) |
+                Q(brand__icontains=search)
+            )
 
         context = {
             'products': products,
-            'editedProduct': editedProduct,
             'branch': request.user.branch,
+            'search': search,
         }
 
         return render(request, 'products.html', context)
@@ -52,6 +59,7 @@ class ProductsView(LoginRequiredMixin, View):
 
 class ProductUpdateView(LoginRequiredMixin, View):
     login_url = 'login'
+
     def get(self, request, pk):
         product = get_object_or_404(Product, pk=pk)
         context = {
@@ -68,3 +76,27 @@ class ProductUpdateView(LoginRequiredMixin, View):
         product.unit = request.POST.get('unit')
         product.save()
         return redirect('products')
+
+
+class ClientsView(LoginRequiredMixin, View):
+    login_url = 'login'
+
+    def get(self, request):
+        clients = Client.objects.filter(branch=request.user.branch)
+
+        context = {
+            'clients': clients,
+        }
+        return render(request, 'clients.html', context)
+
+    def post(self, request):
+        Client.objects.create(
+            name=request.POST.get('name'),
+            shop_name=request.POST.get('shop_name'),
+            phone_number=request.POST.get('phone_number'),
+            address=request.POST.get('address'),
+            debt=request.POST.get('debt'),
+            branch=request.user.branch,
+        )
+        return redirect('clients')
+

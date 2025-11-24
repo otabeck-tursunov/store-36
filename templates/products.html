@@ -12,6 +12,10 @@
                     <button type="submit" class="btn btn-primary" data-toggle="modal" data-target="#myModal">
                         Mahsulot qo'shish
                     </button>
+                    <form class="d-flex">
+                        <input type="text" name="search" class="form-control mr-2" value="{% if search %}{{ search }}{% endif %}" placeholder="Qidirish...">
+                        <button class="btn btn-secondary">Qidirsh</button>
+                    </form>
                 </div>
             </div>
             <div class="card-body">
@@ -34,7 +38,7 @@
                             <td>{{ product.name }}</td>
                             <td>{{ product.brand }}</td>
                             <td>{% if product.importproduct_set.exists %}
-                                {{ product.importproduct_set.last.price }} {% else %} Mavjud emas {% endif %}</td>
+                                {{ product.importproduct_set.last.buy_price|floatformat:2 }} so'm {% else %} Mavjud emas {% endif %}</td>
                             <td>{{ product.price|floatformat:2 }} so'm</td>
                             <td>{{ product.quantity }} {{ product.unit }}</td>
                             <td style="display: flex; gap: 10px">
